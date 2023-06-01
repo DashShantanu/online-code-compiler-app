@@ -1,6 +1,12 @@
 const express = require('express');
+const cors = require('cors');
+const { generateFile } = require('./generateFile');
+const { executeCpp } = require('./executeCpp');
 
 const app = express();
+
+// adds middleware to the express app to enable CORS with various options
+app.use(cors());
 
 // adds middleware to the Express application (app object) to parse URL-encoded data from incoming requests
 app.use(express.urlencoded({ extended: true }));
@@ -11,7 +17,7 @@ app.get('/', (req, res) => {
     return res.json({ message: 'Hello World!' });
 });
 
-app.post('/run', (req, res) => {
+app.post('/run', async (req, res) => {
     // destructure the language and code properties from the request body
     const { language = 'cpp', code } = req.body;
 
@@ -21,10 +27,18 @@ app.post('/run', (req, res) => {
             .json({ success: false, error: 'Empty code body!' })
     }
 
-    // need to generate a c++ file with the content from the request
-    // then compile the file and run it and send the response back
+    try {
+        // need to generate a c++ file with the content from the request
+        const filePath = await generateFile(language, code);
 
-    return res.json({ language, code });
+        // then compile the file and run it and send the response back
+        const codeOutput = await executeCpp(`${filePath}`);
+
+        return res.json({ output: codeOutput });
+    }
+    catch (err) {
+        return res.status(500).json({ err });
+    };
 });
 
 app.listen(5000, () => {

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { generateFile } = require('./generateFile');
 const { executeCpp } = require('./executeCpp');
+const { executePy } = require('./executePy');
 
 const app = express();
 
@@ -32,7 +33,11 @@ app.post('/run', async (req, res) => {
         const filePath = await generateFile(language, code);
 
         // then compile the file and run it and send the response back
-        const codeOutput = await executeCpp(`${filePath}`);
+        let codeOutput = '';
+        if (language === 'py')
+            codeOutput = await executePy(`${filePath}`);
+        else if (language === 'cpp')
+            codeOutput = await executeCpp(`${filePath}`);
 
         return res.json({ output: codeOutput });
     }

@@ -3,12 +3,13 @@ import axios from 'axios';
 
 const App = () => {
   const [code, setCode] = useState("");
+  const [language, setLanguage] = useState("cpp");
   const [output, setOutput] = useState("");
 
   const handleSubmission = async () => {
     // make an object that contains the code and the language
     const payload = {
-      language: "cpp",
+      language,
       code
     };
 
@@ -18,8 +19,14 @@ const App = () => {
 
       setOutput(data.output);
     }
-    catch (err) {
-      console.log(err);
+    catch ({ response }) {
+      if (response) {
+        const errorMessage = response.data.err.stderr;
+        setOutput(errorMessage);
+      }
+      else {
+        setOutput("Error connecting to server!");
+      }
     }
   };
 
@@ -30,7 +37,20 @@ const App = () => {
         Online Code Compiler
       </h1>
 
-      {/* text area */}
+      {/* dropdown language selector */}
+      <div className="mt-6">
+        <label className="mr-2">Select Language:</label>
+        <select
+          className="border-2 border-gray-500 rounded-lg p-2"
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+        >
+          <option value="cpp">C++</option>
+          <option value="py">Python</option>
+        </select>
+      </div>
+
+      {/* editor text area */}
       <div className=" mt-6">
         <textarea
           className="border-2 border-gray-500 rounded-lg p-2"

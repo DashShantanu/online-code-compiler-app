@@ -37,7 +37,7 @@ const App = () => {
         Online Code Compiler
       </h1>
 
-      {/* dropdown language selector */}
+      {/* language selector dropdown */}
       <div className="mt-6">
         <label className="mr-2">Select Language:</label>
         <select

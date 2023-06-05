@@ -1,9 +1,32 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
+
 const { generateFile } = require('./generateFile');
 const { executeCpp } = require('./executeCpp');
 const { executePy } = require('./executePy');
+const Job = require('./models/Job');
 
+// connect to the database
+// mongoose.connect no longer accepts a callback
+// instead you need to use the new async/await syntax or promises
+const connectDB = async () => {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/compilerapp', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log('Connected to mongodb database!');
+    }
+    catch (err) {
+        console.error(err);
+        process.exit(1);
+    }
+};
+
+connectDB();
+
+// create an express app
 const app = express();
 
 // adds middleware to the express app to enable CORS with various options
@@ -21,28 +44,55 @@ app.get('/', (req, res) => {
 app.post('/run', async (req, res) => {
     // destructure the language and code properties from the request body
     const { language = 'cpp', code } = req.body;
-
     // check if code is empty, if so, return status 400 (bad request)
     if (!code) {
         return res.status(400)
             .json({ success: false, error: 'Empty code body!' })
     }
 
+    let job;
     try {
-        // need to generate a c++ file with the content from the request
+        // need to generate a c++/python file with the content from the request
         const filePath = await generateFile(language, code);
 
-        // then compile the file and run it and send the response back
+        // create a new job in the database
+        job = await new Job({ language, filePath }).save();
+        const jobId = job['_id'];
+
+        res.status(201).json({ success: true, jobId });
+
+        // then execute it and send the response back
         let codeOutput = '';
+
+        // set startedAt to current time
+        job['startedAt'] = new Date();
+
         if (language === 'py')
             codeOutput = await executePy(`${filePath}`);
         else if (language === 'cpp')
             codeOutput = await executeCpp(`${filePath}`);
 
-        return res.json({ output: codeOutput });
+        // set completedAt to current time, job status to success and output to codeOutput
+        job['completedAt'] = new Date();
+        job['status'] = 'success';
+        job['output'] = codeOutput;
+
+        // save the job in the database
+        await job.save();
+
+        // return the output in json format
+        // return res.json({ output: codeOutput });
     }
     catch (err) {
-        return res.status(500).json({ err });
+        // set completedAt to current time, job status to error and output to err
+        job['completedAt'] = new Date();
+        job['status'] = 'error';
+        job['output'] = JSON.stringify(err);
+
+        // save the job in the database
+        await job.save();
+
+        // return res.status(500).json({ err });
     };
 });
 

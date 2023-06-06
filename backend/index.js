@@ -37,8 +37,30 @@ app.use(express.urlencoded({ extended: true }));
 // middleware to the Express application to parse JSON data from incoming requests
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    return res.json({ message: 'Hello World!' });
+app.get('/status', async (req, res) => {
+    // get the job id from the query string
+    const jobId = req.query.id;
+    // check if the job id is empty, if so, return status 400 (bad request)
+    if (!jobId) {
+        return res.status(400)
+            .json({ success: false, error: 'missing id query param' })
+    }
+
+    // find the job in the database
+    try {
+        const job = await Job.findById(jobId);
+        if (!job) {
+            return res.status(404)
+                .json({ success: false, error: 'Invalid job id!' });
+        }
+        // return the job in json format
+        return res.json({ success: true, job });
+    }
+    catch (err) {
+        return res.status(400)
+            .json({ success: false, error: JSON.stringify(err) });
+    }
+
 });
 
 app.post('/run', async (req, res) => {
@@ -92,7 +114,7 @@ app.post('/run', async (req, res) => {
         // save the job in the database
         await job.save();
 
-        // return res.status(500).json({ err });
+        return res.status(500).json({ err });
     };
 });
 

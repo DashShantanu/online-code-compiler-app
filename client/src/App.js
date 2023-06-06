@@ -5,6 +5,8 @@ const App = () => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("cpp");
   const [output, setOutput] = useState("");
+  const [status, setStatus] = useState("");
+  const [jobId, setJobId] = useState("");
 
   const handleSubmission = async () => {
     // make an object that contains the code and the language
@@ -14,10 +16,39 @@ const App = () => {
     };
 
     try {
+      // reset the output, status and jobId everytime the user submits a new job
+      setJobId("");
+      setStatus("");
+      setOutput("");
+
       // send a post request to the server
       const { data } = await axios.post("http://localhost:5000/run", payload);
+      console.log(data);
+      setJobId(data.jobId);
 
-      setOutput(data.output);
+      let intervalId = setInterval(async () => {
+        // send a get request to the server to get the status of the job
+        const { data: dataRes } = await axios.get(`http://localhost:5000/status`, { params: { id: data.jobId } });
+
+        const { success, job, error } = dataRes;
+        console.log(dataRes);
+
+        if (success) {
+          const { status: jobStatus, output: jobOutput } = job;
+          setStatus(jobStatus);
+          if (jobStatus === 'pending') return;
+          setOutput(jobOutput);
+          clearInterval(intervalId);
+
+        } else {
+          clearInterval(intervalId);
+          setStatus('Error: Please try again!');
+          setOutput(error);
+        }
+
+        console.log(dataRes);
+
+      }, 1000);
     }
     catch ({ response }) {
       if (response) {
@@ -71,6 +102,18 @@ const App = () => {
         >
           Run Code
         </button>
+      </div>
+
+      {/* Execution details */}
+      <div className="mt-6">
+        <h1 className="text-2xl">
+          {status}
+        </h1>
+      </div>
+      <div className="mt-6">
+        <h1 className="text-2xl">
+          {jobId && `Job ID: ${jobId}`}
+        </h1>
       </div>
 
       {/* Output */}

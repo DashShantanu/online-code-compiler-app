@@ -22,8 +22,7 @@ const JobSchema = new mongoose.Schema({
         type: Date
     },
     output: {
-        type: String,
-        required: true
+        type: String
     },
     status: {
         type: String,

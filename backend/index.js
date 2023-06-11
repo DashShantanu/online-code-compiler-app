@@ -3,8 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const { generateFile } = require('./generateFile');
-const { executeCpp } = require('./executeCpp');
-const { executePy } = require('./executePy');
+const { addJobToQueue } = require('./jobQueue');
 const Job = require('./models/Job');
 
 // connect to the database
@@ -81,41 +80,15 @@ app.post('/run', async (req, res) => {
         job = await new Job({ language, filePath }).save();
         const jobId = job['_id'];
 
+        // add the job to the queue
+        addJobToQueue(jobId);
+
+        // return the job id in json format
         res.status(201).json({ success: true, jobId });
-
-        // then execute it and send the response back
-        let codeOutput = '';
-
-        // set startedAt to current time
-        job['startedAt'] = new Date();
-
-        if (language === 'py')
-            codeOutput = await executePy(`${filePath}`);
-        else if (language === 'cpp')
-            codeOutput = await executeCpp(`${filePath}`);
-
-        // set completedAt to current time, job status to success and output to codeOutput
-        job['completedAt'] = new Date();
-        job['status'] = 'success';
-        job['output'] = codeOutput;
-
-        // save the job in the database
-        await job.save();
-
-        // return the output in json format
-        // return res.json({ output: codeOutput });
     }
     catch (err) {
-        // set completedAt to current time, job status to error and output to err
-        job['completedAt'] = new Date();
-        job['status'] = 'error';
-        job['output'] = JSON.stringify(err);
-
-        // save the job in the database
-        await job.save();
-
-        return res.status(500).json({ err });
-    };
+        return res.status(500).json({ success: false, error: JSON.stringify(err) });
+    }
 });
 
 app.listen(5000, () => {

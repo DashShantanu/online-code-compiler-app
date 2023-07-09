@@ -11,6 +11,9 @@ if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(outputPath, { recursive: true });
 }
 
+// Note:
+// In this function specifically, instead of async/await, we are returning a new promise through the Promise constructor. This is done so that we can handle the promise manually and thoroughly. Using async/await would have been a bit more concise, but it would have been harder to handle the errors.
+
 const executeCpp = (filePath) => {
     // get the job id from the file path
     const jobId = path.basename(filePath).split('.')[0];

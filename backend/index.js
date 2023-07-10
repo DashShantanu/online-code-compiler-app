@@ -64,7 +64,7 @@ app.get('/status', async (req, res) => {
 
 app.post('/run', async (req, res) => {
     // destructure the language and code properties from the request body
-    const { language = 'cpp', code } = req.body;
+    const { language = 'cpp', code, userInput } = req.body;
     // check if code is empty, if so, return status 400 (bad request)
     if (!code) {
         return res.status(400)
@@ -81,7 +81,7 @@ app.post('/run', async (req, res) => {
         const jobId = job['_id'];
 
         // add the job to the queue
-        addJobToQueue(jobId);
+        addJobToQueue(jobId, userInput);
 
         // return the job id in json format
         res.status(201).json({ success: true, jobId });

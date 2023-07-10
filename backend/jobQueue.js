@@ -14,7 +14,7 @@ const { executeCpp } = require('./executeCpp');
 
 // process jobs from the queue
 jobQueue.process(NUM_WORKERS, async ({ data }) => {
-    const { id: jobId } = data;
+    const { id: jobId, userInput } = data;
 
     // find the job in the database
     const job = await Job.findById(jobId);
@@ -34,9 +34,9 @@ jobQueue.process(NUM_WORKERS, async ({ data }) => {
         job['startedAt'] = new Date();
 
         if (job.language === 'py')
-            codeOutput = await executePy(`${job.filePath}`);
+            codeOutput = await executePy(`${job.filePath}`, userInput);
         else if (job.language === 'cpp')
-            codeOutput = await executeCpp(`${job.filePath}`);
+            codeOutput = await executeCpp(`${job.filePath}`, userInput);
 
         // set completedAt to current time, job status to success and output to codeOutput
         job['completedAt'] = new Date();
@@ -59,8 +59,8 @@ jobQueue.process(NUM_WORKERS, async ({ data }) => {
 });
 
 // add a job to the queue
-const addJobToQueue = async (jobId) => {
-    await jobQueue.add({ id: jobId });
+const addJobToQueue = async (jobId, userInput) => {
+    await jobQueue.add({ id: jobId, userInput });
 };
 
 module.exports = { addJobToQueue };

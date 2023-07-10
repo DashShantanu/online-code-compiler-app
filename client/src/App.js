@@ -5,7 +5,7 @@ import moment from 'moment';
 // import { set } from 'mongoose';
 
 // Import Brace and the AceEditor Component
-import brace from 'brace';
+// import brace from 'brace';
 import AceEditor from 'react-ace';
 
 // Import a Mode (language)
@@ -22,6 +22,7 @@ const App = () => {
   const [status, setStatus] = useState("");
   const [jobId, setJobId] = useState("");
   const [jobDetails, setJobDetails] = useState(null);
+  const [userInput, setUserInput] = useState("");
 
   // get the default language from the local storage
   useEffect(() => {
@@ -63,18 +64,23 @@ const App = () => {
     return result;
   }
 
+  const updateCode = (newValue) => {
+    setCode(newValue);
+  };
+
   const handleSubmission = async () => {
     // make an object that contains the code and the language
     const payload = {
       language,
-      code
+      code,
+      userInput
     };
 
     try {
       // reset the output, status and jobId everytime the user submits a new job
       setJobId("");
       setStatus("");
-      setOutput("");
+      setOutput(``);
       setJobDetails(null);
 
       // send a post request to the server
@@ -160,7 +166,7 @@ const App = () => {
         mode="c_cpp"
         theme="monokai"
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={updateCode}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{
           $blockScrolling: true
@@ -177,6 +183,16 @@ const App = () => {
         >
           Run Code
         </button>
+      </div>
+
+      {/* User input */}
+      <div className="mt-6">
+        <div className="mr-2">Input:</div>
+        <textarea
+          className="border-2 border-gray-500 rounded-lg p-2"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+        />
       </div>
 
       {/* Execution details */}

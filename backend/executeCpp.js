@@ -14,15 +14,17 @@ if (!fs.existsSync(outputPath)) {
 // Note:
 // In this function specifically, instead of async/await, we are returning a new promise through the Promise constructor. This is done so that we can handle the promise manually and thoroughly. Using async/await would have been a bit more concise, but it would have been harder to handle the errors.
 
-const executeCpp = (filePath) => {
+const executeCpp = (filePath, userInput) => {
     // get the job id from the file path
     const jobId = path.basename(filePath).split('.')[0];
     // concatenate the output file path
     const outputFilePath = path.join(outputPath, `${jobId}.exe`);
 
+
     return new Promise((resolve, reject) => {
         // compile the file and run the executable
         // here, the file paths have been modified according to the Windows OS
+        // user input is passed to the executable through stdin
         exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ${jobId}.exe`,
             (error, stdout, stderr) => {
                 // if there is an error, reject the promise
@@ -30,8 +32,10 @@ const executeCpp = (filePath) => {
                 // if there is a stderr, reject the promise
                 stderr && reject(stderr);
                 // if there is no error, resolve the promise with the output
+                console.log(stdout);
                 resolve(stdout);
-            });
+            }
+        ).stdin.end(userInput);
     });
 };
 

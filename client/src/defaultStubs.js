@@ -10,7 +10,7 @@ int main() {
     vector<int> arr(n);
     for(int i=0; i<n; i++) cin>>arr[i];
     
-    for(auto num: arr) cout<<num<<" ";
+    for(auto num: arr) cout<<num<<"\\n";
     
     return 0;
 }`;

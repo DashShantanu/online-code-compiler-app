@@ -4,16 +4,17 @@ import stubs from './defaultStubs';
 import moment from 'moment';
 // import { set } from 'mongoose';
 
-// Import Brace and the AceEditor Component
-// import brace from 'brace';
+// Import the AceEditor Component
 import AceEditor from 'react-ace';
 
 // Import a Mode (language)
-import 'brace/mode/python';
-import 'brace/mode/c_cpp';
+import "ace-builds/src-noconflict/mode-c_cpp";
+import "ace-builds/src-noconflict/mode-python";
+
 // Import a Theme (okadia, github, xcode etc)
-import 'brace/theme/github';
-import 'brace/theme/monokai';
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 const App = () => {
   const [code, setCode] = useState("");
@@ -59,7 +60,7 @@ const App = () => {
     const end = moment(completedAt);
     const executionTime = end.diff(start, 'seconds', true);
 
-    result += `Execution time: ${executionTime}s`;
+    result += `${executionTime}s`;
 
     return result;
   }
@@ -85,15 +86,15 @@ const App = () => {
 
       // send a post request to the server
       const { data } = await axios.post("http://localhost:5000/run", payload);
-      console.log(data);
+      console.log(jobId);
       setJobId(data.jobId);
 
       let intervalId = setInterval(async () => {
         // send a get request to the server to get the status of the job
         const { data: dataRes } = await axios.get(`http://localhost:5000/status`, { params: { id: data.jobId } });
 
-        const { success, job, error } = dataRes;
-        console.log(dataRes);
+        const { success, job } = dataRes;
+        // console.log(dataRes);
 
         if (success) {
           const { status: jobStatus, output: jobOutput } = job;
@@ -102,13 +103,23 @@ const App = () => {
 
           if (jobStatus === 'pending') return;
 
-          setOutput(jobOutput);
-          clearInterval(intervalId);
+          if (jobStatus === 'error') {
+            let errorOutput = JSON.parse(jobOutput);
+            let error = errorOutput.stderr;
+            // console.log(error);
+            setOutput(error);
+            setStatus('Error: Please try again!');
+            clearInterval(intervalId);
+          }
+          else {
+            setOutput(jobOutput);
+            clearInterval(intervalId);
+          }
 
         } else {
           clearInterval(intervalId);
           setStatus('Error: Please try again!');
-          setOutput(error);
+          setOutput('');
         }
 
         console.log(dataRes);
@@ -118,6 +129,7 @@ const App = () => {
     catch ({ response }) {
       if (response) {
         const errorMessage = response.data.err.stderr;
+        // console.log(response);
         setOutput(errorMessage);
       }
       else {
@@ -133,93 +145,125 @@ const App = () => {
         Online Code Compiler
       </h1>
 
-      {/* language selector dropdown */}
-      <div className="mt-6">
-        <label className="mr-2">Select Language:</label>
-        <select
-          className="border-2 border-gray-500 rounded-lg p-2"
-          value={language}
-          onChange={(e) => {
-            let response = window.confirm("WARNING: Switching the language will reset the current code. Do you wish to proceed?");
+      {/* Settings Row */}
+      <div className="flex flex-row gap-2 mt-6">
 
-            // if the user clicks ok, then set the language
-            response && setLanguage(e.target.value);
+        {/* language selector dropdown */}
+        <div className="mt-6">
+          <select
+            className="border-2 border-gray-500 rounded-lg p-2"
+            value={language}
+            onChange={(e) => {
+              let response = window.confirm("WARNING: Switching the language will reset the current code. Do you wish to proceed?");
+
+              // if the user clicks ok, then set the language
+              response && setLanguage(e.target.value);
+            }}
+          >
+            <option value="cpp">C++</option>
+            <option value="py">Python</option>
+          </select>
+        </div>
+
+        {/* Set default language button */}
+        <div className="mt-6">
+          <button
+            className="hover:bg-blue-500 hover:border-2 hover:border-white-500 hover:text-white py-2 px-4 rounded border-2 border-gray-500"
+            onClick={setDefaultLanguage}
+          >
+            Set Default Language
+          </button>
+        </div>
+
+        {/* Submit button */}
+        <div className="flex flex-row mt-6">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleSubmission}
+          >
+            Run Code
+          </button>
+        </div>
+
+      </div>
+
+
+      {/* Editor and input-output container */}
+      <div className="flex flex-row mt-6 gap-1 w-80%">
+
+        {/* Editor text area */}
+        <AceEditor
+          mode="c_cpp"
+          theme="monokai"
+          value={code}
+          onChange={updateCode}
+          name="UNIQUE_ID_OF_DIV"
+          editorProps={{
+            $blockScrolling: true
           }}
-        >
-          <option value="cpp">C++</option>
-          <option value="py">Python</option>
-        </select>
-      </div>
-
-      {/* Set default button */}
-      <div className="mt-6">
-        <button
-          className="hover:bg-blue-500 hover:border-2 hover:border-white-500 hover:text-white py-2 px-4 rounded border-2 border-gray-500"
-          onClick={setDefaultLanguage}
-        >
-          Set Default Language
-        </button>
-      </div>
-
-      {/* Editor text area */}
-      <AceEditor
-        mode="c_cpp"
-        theme="monokai"
-        value={code}
-        onChange={updateCode}
-        name="UNIQUE_ID_OF_DIV"
-        editorProps={{
-          $blockScrolling: true
-        }}
-        fontSize={20}
-        width="55%"
-      />
-
-      {/* button */}
-      <div className="flex flex-row mt-6">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSubmission}
-        >
-          Run Code
-        </button>
-      </div>
-
-      {/* User input */}
-      <div className="mt-6">
-        <div className="mr-2">Input:</div>
-        <textarea
-          className="border-2 border-gray-500 rounded-lg p-2"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
+          width='60%'
+          height='700px'
+          fontSize={20}
+          wrapEnabled={true}
+          showPrintMargin={false}
+          setOptions={{
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true,
+            enableSnippets: true,
+          }}
         />
-      </div>
 
-      {/* Execution details */}
-      <div className="mt-6">
-        <h1 className="text-2xl">
-          {status}
-        </h1>
-      </div>
-      <div className="mt-6">
-        <h1 className="text-2xl">
-          {jobId && `Job ID: ${jobId}`}
-        </h1>
-      </div>
-      <div className="mt-6">
-        <h1 className="text-2xl">
-          {renderTimeDetails()}
-        </h1>
-      </div>
 
-      {/* Output */}
-      <div className="mt-6">
-        <h1 className="text-2xl">
-          {output}
-        </h1>
-      </div>
+        {/* Input and Output container */}
+        <div className="flex flex-col bg-[#272822]">
 
-    </div>
+          {/* User input */}
+          <div className="flex flex-col basis-2/5 mt-6">
+            <div className=" font-mono mr-2 font-bold text-xl text-white">
+              Input
+            </div>
+            <textarea
+              className="border-none p-2 bg-[#272822] resize-none font-mono font-bold text-white"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              rows={10}
+              cols={80}
+            >
+            </textarea>
+          </div>
+
+          {/* Output */}
+          <div className="flex flex-col basis-2/5 mt-6">
+            <div className="font-mono mr-2 font-bold text-xl text-white">
+              Output
+            </div>
+            {output &&
+              <textarea
+                className="border-none p-2 bg-[#272822] resize-none font-mono font-bold text-white"
+                value={output}
+                rows={10}
+                cols={80}
+                readOnly
+              >
+              </textarea>
+            }
+          </div>
+
+          {/* Execution details */}
+          <div className="mt-6">
+            <h1 className="font-mono font-bold text-xl text-white">
+              Status: {status}
+            </h1>
+          </div>
+          <div className="">
+            <h1 className="font-mono font-bold text-xl text-white">
+              Execution Time: {renderTimeDetails()}
+            </h1>
+          </div>
+
+        </div>
+      </div>
+    </div >
   );
 };
 

@@ -18,7 +18,7 @@ const executeCpp = (filePath, userInput) => {
     // get the job id from the file path
     const jobId = path.basename(filePath).split('.')[0];
     // concatenate the output file path
-    const outputFilePath = path.join(outputPath, `${jobId}.out`);
+    const outputFilePath = path.join(outputPath, `${jobId}.exe`);
 
 
     return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ const executeCpp = (filePath, userInput) => {
         // here, the file paths have been modified according to the Linux OS
         // user input is passed to the executable through stdin
         // exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ${jobId}.exe`,
-        exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ./${jobId}.out`,
+        exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ${jobId}.exe`,
             (error, stdout, stderr) => {
                 // if there is an error, reject the promise
                 error && reject({ error, stderr });

@@ -37,16 +37,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Create a Redis client and connect to the server
-const redis = require('redis');
-const { createClient } = redis;
+// const redis = require('redis');
+// const { createClient } = redis;
+// let client;
+// try {
+//     client = createClient({
+//         password: 'BgOOGmSwhPiVWCfqYzVJ0uDOe5QDPLVr',
+//         socket: {
+//             host: 'redis-12794.c16.us-east-1-2.ec2.cloud.redislabs.com',
+//             port: 12794
+//         }
+//     });
 
-const client = createClient({
-    password: 'BgOOGmSwhPiVWCfqYzVJ0uDOe5QDPLVr',
-    socket: {
-        host: 'redis-12794.c16.us-east-1-2.ec2.cloud.redislabs.com',
-        port: 12794
-    }
-});
+// }
+// catch (err) {
+//     console.log(err);
+// };
+
+// client.on('connect', () => {
+//     console.log('Connected to Redis!');
+// });
+// client.on('error', (error) => {
+//     console.error('Redis connection error:', error);
+// });
+
 
 app.get('/status', async (req, res) => {
     // get the job id from the query string

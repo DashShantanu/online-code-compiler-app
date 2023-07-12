@@ -107,13 +107,13 @@ const App = () => {
       setJobDetails(null);
 
       // send a post request to the server
-      const { data } = await axios.post("https://code-dash-server.netlify.app/run", payload);
+      const { data } = await axios.post("https://code-dash-server.netlify.app:5000/run", payload);
       console.log(jobId);
       setJobId(data.jobId);
 
       let intervalId = setInterval(async () => {
         // send a get request to the server to get the status of the job
-        const { data: dataRes } = await axios.get(`https://code-dash-server.netlify.app/status`, { params: { id: data.jobId } });
+        const { data: dataRes } = await axios.get(`https://code-dash-server.netlify.app:5000/status`, { params: { id: data.jobId } });
 
         const { success, job } = dataRes;
         // console.log(dataRes);

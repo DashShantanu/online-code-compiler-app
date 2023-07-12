@@ -14,6 +14,8 @@ const { executeCpp } = require('./executeCpp');
 
 // process jobs from the queue
 jobQueue.process(NUM_WORKERS, async ({ data }) => {
+    console.log("entered here");
+
     const { id: jobId, userInput } = data;
 
     // find the job in the database
@@ -21,6 +23,8 @@ jobQueue.process(NUM_WORKERS, async ({ data }) => {
     if (!job) {
         throw Error('Job not found!');
     }
+
+    console.log("job found");
 
     // listen for job failed events and log the error
     jobQueue.on('failed', (error) => {

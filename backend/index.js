@@ -36,6 +36,18 @@ app.use(express.urlencoded({ extended: true }));
 // middleware to the Express application to parse JSON data from incoming requests
 app.use(express.json());
 
+// Create a Redis client and connect to the server
+const redis = require('redis');
+const { createClient } = redis;
+
+const client = createClient({
+    password: 'BgOOGmSwhPiVWCfqYzVJ0uDOe5QDPLVr',
+    socket: {
+        host: 'redis-12794.c16.us-east-1-2.ec2.cloud.redislabs.com',
+        port: 12794
+    }
+});
+
 app.get('/status', async (req, res) => {
     // get the job id from the query string
     const jobId = req.query.id;

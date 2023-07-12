@@ -106,15 +106,14 @@ const App = () => {
       setOutput(``);
       setJobDetails(null);
 
-      const port = process.env.PORT || 5000;
       // send a post request to the server
-      const { data } = await axios.post(`https://code-dash-server.onrender.com:${port}/run`, payload);
+      const { data } = await axios.post(`https://code-dash-server.onrender.com/run`, payload);
       console.log(jobId);
       setJobId(data.jobId);
 
       let intervalId = setInterval(async () => {
         // send a get request to the server to get the status of the job
-        const { data: dataRes } = await axios.get(`https://code-dash-server.onrender.com:${port}/status`, { params: { id: data.jobId } });
+        const { data: dataRes } = await axios.get(`https://code-dash-server.onrender.com/status`, { params: { id: data.jobId } });
 
         const { success, job } = dataRes;
         // console.log(dataRes);

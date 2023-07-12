@@ -72,6 +72,7 @@ app.post('/run', async (req, res) => {
             .json({ success: false, error: 'Empty code body!' })
     }
 
+    console.log("request fetched");
     let job;
     try {
         // need to generate a c++/python file with the content from the request
@@ -81,8 +82,12 @@ app.post('/run', async (req, res) => {
         job = await new Job({ language, filePath }).save();
         const jobId = job['_id'];
 
+        console.log("job created");
+
         // add the job to the queue
         addJobToQueue(jobId, userInput);
+
+        console.log("job added to queue");
 
         // return the job id in json format
         res.setHeader('Content-Type', 'application/json');

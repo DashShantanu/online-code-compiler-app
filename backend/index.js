@@ -11,7 +11,7 @@ const Job = require('./models/Job');
 // instead you need to use the new async/await syntax or promises
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/compilerapp', {
+        await mongoose.connect('mongodb+srv://papun260801:dN5bbT0VyaFTOj0o@cluster-code-dash.rehgrfl.mongodb.net/', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });

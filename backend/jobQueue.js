@@ -33,10 +33,14 @@ jobQueue.process(NUM_WORKERS, async ({ data }) => {
         // set startedAt to current time
         job['startedAt'] = new Date();
 
+        console.log("job started");
+
         if (job.language === 'py')
             codeOutput = await executePy(`${job.filePath}`, userInput);
         else if (job.language === 'cpp')
             codeOutput = await executeCpp(`${job.filePath}`, userInput);
+
+        console.log("job finished");
 
         // set completedAt to current time, job status to success and output to codeOutput
         job['completedAt'] = new Date();

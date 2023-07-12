@@ -15,7 +15,7 @@ const connectDB = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        // console.log('Connected to mongodb database!');
+        console.log('Connected to mongodb database!');
     }
     catch (err) {
         console.error(err);
@@ -82,12 +82,8 @@ app.post('/run', async (req, res) => {
         job = await new Job({ language, filePath }).save();
         const jobId = job['_id'];
 
-        console.log("job created");
-
         // add the job to the queue
         addJobToQueue(jobId, userInput);
-
-        console.log("job added to queue");
 
         // return the job id in json format
         res.setHeader('Content-Type', 'application/json');

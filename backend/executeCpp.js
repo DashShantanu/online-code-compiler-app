@@ -18,14 +18,15 @@ const executeCpp = (filePath, userInput) => {
     // get the job id from the file path
     const jobId = path.basename(filePath).split('.')[0];
     // concatenate the output file path
-    const outputFilePath = path.join(outputPath, `${jobId}.exe`);
+    const outputFilePath = path.join(outputPath, `${jobId}.out`);
 
 
     return new Promise((resolve, reject) => {
         // compile the file and run the executable
-        // here, the file paths have been modified according to the Windows OS
+        // here, the file paths have been modified according to the Linux OS
         // user input is passed to the executable through stdin
-        exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ${jobId}.exe`,
+        // exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ${jobId}.exe`,
+        exec(`g++ "${filePath}" -o "${outputFilePath}" && cd "${outputPath}" && ./${jobId}.out`,
             (error, stdout, stderr) => {
                 // if there is an error, reject the promise
                 error && reject({ error, stderr });

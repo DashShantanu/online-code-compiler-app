@@ -53,6 +53,7 @@ app.get('/status', async (req, res) => {
                 .json({ success: false, error: 'Invalid job id!' });
         }
         // return the job in json format
+        res.setHeader('Content-Type', 'application/json');
         return res.json({ success: true, job });
     }
     catch (err) {
@@ -84,6 +85,7 @@ app.post('/run', async (req, res) => {
         addJobToQueue(jobId, userInput);
 
         // return the job id in json format
+        res.setHeader('Content-Type', 'application/json');
         res.status(201).json({ success: true, jobId });
     }
     catch (err) {

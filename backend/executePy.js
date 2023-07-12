@@ -2,7 +2,7 @@
 const { exec } = require('child_process');
 const path = require('path');
 
-const executePy = (filePath) => {
+const executePy = (filePath, userInput) => {
     // get the job id from the file path
     const jobId = path.basename(filePath).split('.')[0];
 
@@ -17,7 +17,8 @@ const executePy = (filePath) => {
                 stderr && reject(stderr);
                 // if there is no error, resolve the promise with the output
                 resolve(stdout);
-            });
+            }
+        ).stdin.end(userInput);
     });
 };
 

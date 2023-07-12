@@ -8,13 +8,24 @@ import moment from 'moment';
 import AceEditor from 'react-ace';
 
 // Import a Mode (language)
-import "ace-builds/src-noconflict/mode-c_cpp";
+// import "ace-builds/src-noconflict/mode-c_cpp";
+import 'brace/mode/c_cpp';
 import "ace-builds/src-noconflict/mode-python";
 
-// Import a Theme (okadia, github, xcode etc)
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
+
+// Import Themes (okadia, github, xcode etc)
+import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/theme-one_dark";
+import "ace-builds/src-noconflict/theme-terminal";
+import "ace-builds/src-noconflict/theme-twilight";
+import "ace-builds/src-noconflict/theme-xcode";
+import "ace-builds/src-noconflict/theme-dracula";
+import "ace-builds/src-noconflict/theme-dreamweaver";
+import "ace-builds/src-noconflict/theme-solarized_dark";
+import "ace-builds/src-noconflict/theme-solarized_light";
+import "ace-builds/src-noconflict/theme-kuroir";
+
 
 const App = () => {
   const [code, setCode] = useState("");
@@ -24,6 +35,17 @@ const App = () => {
   const [jobId, setJobId] = useState("");
   const [jobDetails, setJobDetails] = useState(null);
   const [userInput, setUserInput] = useState("");
+  const [editorTheme, setEditorTheme] = useState("twilight");
+  const [editorFontSize, setEditorFontSize] = useState(20);
+
+  // object mapping of supported languages to modes
+  const modes = {
+    "cpp": "c_cpp",
+    "python": "python"
+  };
+
+  // list of supported themes
+  const themes = ["twilight", "monokai", "one_dark", "terminal", "xcode", "dracula", "dreamweaver", "solarized_dark", "solarized_light", "kuroir"];
 
   // get the default language from the local storage
   useEffect(() => {
@@ -140,18 +162,48 @@ const App = () => {
 
 
   return (
-    <div className=" m-5">
-      <h1 className="text-4xl font-bold">
+    <div className=" bg-slate-900 w-full h-[100vh] p-6">
+      <h1 className="text-4xl font-bold text-white">
         Online Code Compiler
       </h1>
 
       {/* Settings Row */}
       <div className="flex flex-row gap-2 mt-6">
 
+        {/* Theme selector dropdown */}
+        <div className="mt-6">
+          <select
+            className="border-2 border-gray-500 p-2 bg-transparent text-white"
+            value={editorTheme}
+            onChange={(e) => { setEditorTheme(e.target.value); }}
+          >
+            {
+              // map over the themes array and render the options
+              themes.map((theme, idx) => {
+                return (
+                  <option
+                    key={idx}
+                    value={theme}
+                    className=' bg-slate-900 text-white'
+                  >
+                    {
+                      // convert the theme name to title case
+                      theme.split('_').map((word) => {
+                        return word.charAt(0).toUpperCase() + word.slice(1);
+                      }).join(' ')
+                    }
+                  </option>
+                )
+              })
+            }
+          </select>
+        </div>
+
+
         {/* language selector dropdown */}
         <div className="mt-6">
           <select
-            className="border-2 border-gray-500 rounded-lg p-2"
+            className="border-2 border-gray-500 p-2 text-white bg-transparent"
             value={language}
             onChange={(e) => {
               let response = window.confirm("WARNING: Switching the language will reset the current code. Do you wish to proceed?");
@@ -160,19 +212,45 @@ const App = () => {
               response && setLanguage(e.target.value);
             }}
           >
-            <option value="cpp">C++</option>
-            <option value="py">Python</option>
+            <option
+              value="cpp"
+              className=' bg-slate-900 text-white'
+            >
+              C/C++
+            </option>
+            <option
+              value="py"
+              className=' bg-slate-900 text-white'
+            >
+              Python
+            </option>
           </select>
         </div>
 
         {/* Set default language button */}
         <div className="mt-6">
           <button
-            className="hover:bg-blue-500 hover:border-2 hover:border-white-500 hover:text-white py-2 px-4 rounded border-2 border-gray-500"
+            className="hover:bg-blue-500 hover:border-2 hover:border-white-500 hover:text-white py-2 px-4 rounded border-2 border-gray-500 text-white"
             onClick={setDefaultLanguage}
           >
             Set Default Language
           </button>
+        </div>
+
+        {/* slider for font size */}
+        <div className="mt-6">
+          <div className="text-white">
+            Font Size: {editorFontSize}px
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="40"
+            step={2}
+            value={editorFontSize}
+            onChange={(e) => { setEditorFontSize(parseInt(e.target.value)); }}
+            className="slider"
+          />
         </div>
 
         {/* Submit button */}
@@ -189,21 +267,21 @@ const App = () => {
 
 
       {/* Editor and input-output container */}
-      <div className="flex flex-row mt-6 gap-1 w-80%">
+      <div className="flex flex-row mt-6 gap-1 w-90%">
 
         {/* Editor text area */}
         <AceEditor
-          mode="c_cpp"
-          theme="monokai"
+          mode={modes[language]}
+          theme={editorTheme}
           value={code}
           onChange={updateCode}
           name="UNIQUE_ID_OF_DIV"
           editorProps={{
             $blockScrolling: true
           }}
-          width='60%'
-          height='700px'
-          fontSize={20}
+          width='70%'
+          height='800px'
+          fontSize={editorFontSize}
           wrapEnabled={true}
           showPrintMargin={false}
           setOptions={{
@@ -215,34 +293,34 @@ const App = () => {
 
 
         {/* Input and Output container */}
-        <div className="flex flex-col bg-[#272822]">
+        <div className="flex flex-col p-3 io-box">
 
           {/* User input */}
-          <div className="flex flex-col basis-2/5 mt-6">
-            <div className=" font-mono mr-2 font-bold text-xl text-white">
+          <div className="flex flex-col basis-2/5 border-[1px] border-solid border-gray-500">
+            <div className=" font-mono p-2 px-4 font-bold text-2xl text-white border-b-gray-500 border-b-[1px]">
               Input
             </div>
             <textarea
-              className="border-none p-2 bg-[#272822] resize-none font-mono font-bold text-white"
+              className="border-none mx-2 p-2 bg-transparent resize-none font-mono font-bold text-white text-xl outline-none"
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               rows={10}
-              cols={80}
+              cols={60}
             >
             </textarea>
           </div>
 
           {/* Output */}
-          <div className="flex flex-col basis-2/5 mt-6">
-            <div className="font-mono mr-2 font-bold text-xl text-white">
+          <div className="flex flex-col basis-2/5 border-[1px] border-solid border-gray-500">
+            <div className="font-mono p-2 px-4 font-bold text-2xl text-white border-b-gray-500 border-b-[1px]">
               Output
             </div>
             {output &&
               <textarea
-                className="border-none p-2 bg-[#272822] resize-none font-mono font-bold text-white"
+                className="border-none mx-2 p-2 bg-transparent resize-none font-mono font-bold text-white text-xl outline-none"
                 value={output}
                 rows={10}
-                cols={80}
+                cols={50}
                 readOnly
               >
               </textarea>

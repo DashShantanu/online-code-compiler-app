@@ -509,11 +509,8 @@ video {
   }
 }
 
-.m-5 {
-  margin: 1.25rem;
-}
-
-.mr-2 {
+.mx-2 {
+  margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
 
@@ -525,8 +522,12 @@ video {
   display: flex;
 }
 
-.w-80 {
-  width: 20rem;
+.h-\[100vh\] {
+  height: 100vh;
+}
+
+.w-full {
+  width: 100%;
 }
 
 .basis-2\/5 {
@@ -557,12 +558,20 @@ video {
   border-radius: 0.25rem;
 }
 
-.rounded-lg {
-  border-radius: 0.5rem;
-}
-
 .border-2 {
   border-width: 2px;
+}
+
+.border-\[1px\] {
+  border-width: 1px;
+}
+
+.border-b-\[1px\] {
+  border-bottom-width: 1px;
+}
+
+.border-solid {
+  border-style: solid;
 }
 
 .border-none {
@@ -574,9 +583,9 @@ video {
   border-color: rgb(107 114 128 / var(--tw-border-opacity));
 }
 
-.bg-\[\#272822\] {
-  --tw-bg-opacity: 1;
-  background-color: rgb(39 40 34 / var(--tw-bg-opacity));
+.border-b-gray-500 {
+  --tw-border-opacity: 1;
+  border-bottom-color: rgb(107 114 128 / var(--tw-border-opacity));
 }
 
 .bg-blue-500 {
@@ -584,8 +593,25 @@ video {
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
 }
 
+.bg-slate-900 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+}
+
+.bg-transparent {
+  background-color: transparent;
+}
+
 .p-2 {
   padding: 0.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
 }
 
 .px-4 {
@@ -600,6 +626,11 @@ video {
 
 .font-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 
 .text-4xl {
@@ -619,6 +650,11 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 .hover\:border-2:hover {
